@@ -1,4 +1,8 @@
-import type { CheckResult, ValidationResult } from '../pki/types';
+import type { CheckId, CheckResult, ValidationResult } from '../pki/types';
+
+/** Callback that opens a certificate in the inspector, highlighting the
+ * field(s) that are evidence for a given check. */
+export type InspectFn = (certId: string, evidence: CheckId) => void;
 
 type Attrs = Record<string, string | boolean | ((ev: Event) => void)>;
 
@@ -51,8 +55,9 @@ export function chipRow(result: ValidationResult): HTMLElement {
   return el('div', { class: 'chip-row' }, [signatureFactChip(result), verdictChip(result)]);
 }
 
-/** Full RFC 5280 check table: every check reported independently. */
-export function checkTable(result: ValidationResult, caption: string): HTMLElement {
+/** Full RFC 5280 check table: every check reported independently. Failed
+ * checks with an attributed certificate get a jump-to-evidence button. */
+export function checkTable(result: ValidationResult, caption: string, inspect?: InspectFn): HTMLElement {
   const table = el('table', { class: 'check-table' });
   table.append(el('caption', { class: 'sr-caption', text: caption }));
   const thead = el('thead', {}, [
@@ -65,13 +70,31 @@ export function checkTable(result: ValidationResult, caption: string): HTMLEleme
   ]);
   const tbody = el('tbody');
   for (const c of result.checks) {
-    tbody.append(checkRow(c));
+    tbody.append(checkRow(c, inspect));
   }
   table.append(thead, tbody);
   return table;
 }
 
-function checkRow(c: CheckResult): HTMLElement {
+function checkRow(c: CheckResult, inspect?: InspectFn): HTMLElement {
+  const detailCell = el('td', { class: 'check-detail' }, [
+    el('details', {}, [el('summary', { text: c.ok ? 'why it passes' : 'why it fails' }), c.detail]),
+  ]);
+  if (!c.ok && c.certId && inspect) {
+    const certId = c.certId;
+    detailCell.append(
+      el(
+        'button',
+        {
+          type: 'button',
+          class: 'evidence-btn',
+          'aria-label': `Open the evidence for "${c.label}" in the certificate inspector`,
+          onclick: () => inspect(certId, c.id),
+        },
+        ['Show evidence in inspector ↓'],
+      ),
+    );
+  }
   return el('tr', {}, [
     el('td', { class: c.ok ? 'status-pass' : 'status-fail' }, [c.ok ? '✓ pass' : '✗ FAIL']),
     el('td', {}, [c.label, el('div', { class: 'rfc-ref', text: c.rfc })]),
@@ -81,9 +104,7 @@ function checkRow(c: CheckResult): HTMLElement {
         text: c.cryptographic ? 'crypto' : 'policy',
       }),
     ]),
-    el('td', { class: 'check-detail' }, [
-      el('details', {}, [el('summary', { text: c.ok ? 'why it passes' : 'why it fails' }), c.detail]),
-    ]),
+    detailCell,
   ]);
 }
 

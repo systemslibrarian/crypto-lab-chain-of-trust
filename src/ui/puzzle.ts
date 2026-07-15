@@ -1,14 +1,15 @@
 import { STAGES, type Stage } from '../pki/scenarios';
 import { validatePath } from '../pki/validate';
 import type { CheckId, LabPki } from '../pki/types';
-import { CHECK_NAMES, checkTable, chipRow, el } from './common';
+import { CHECK_NAMES, checkTable, chipRow, el, type InspectFn } from './common';
+import { glossaryBox } from './glossary';
 
 /**
  * Puzzle mode: the learner IS the validator. They assemble a path from the
  * bag and rule ACCEPT or REJECT (naming the failing check). Grading runs the
  * real RFC 5280 §6 implementation on the exact path the learner built.
  */
-export function renderPuzzle(root: HTMLElement, pki: LabPki): void {
+export function renderPuzzle(root: HTMLElement, pki: LabPki, inspect?: InspectFn): void {
   const solved = new Set<string>();
   let current = 0;
   let path: string[] = [];
@@ -23,6 +24,8 @@ export function renderPuzzle(root: HTMLElement, pki: LabPki): void {
         'check you missed. Stuck? Every stage has a hint, and the inspector below shows every byte.',
     ]),
   );
+
+  root.append(glossaryBox());
 
   const stageNav = el('ol', { class: 'stage-list', 'aria-label': 'Puzzle stages' });
   const scoreLine = el('p', { class: 'score-line', role: 'status', 'aria-live': 'polite' });
@@ -281,7 +284,7 @@ export function renderPuzzle(root: HTMLElement, pki: LabPki): void {
         );
       }
 
-      gradeBox.append(checkTable(result, `Validator checklist for stage ${stage.n}`));
+      gradeBox.append(checkTable(result, `Validator checklist for stage ${stage.n}`, inspect));
 
       const stageSolved = verdictRight && culpritRight && pathIsIntended;
       if (stageSolved) {

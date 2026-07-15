@@ -40,7 +40,9 @@ subset of RFC 5280 §6 — no policy mapping, no IP/email name constraints, no A
    stage hands you a leaf, a bag of intermediates, and a trust store; you assemble the path and
    rule ACCEPT or REJECT (naming the failing check). Grading runs the real RFC 5280 §6
    implementation on the exact path you built and tells you which check you missed. Every stage
-   carries a hint that points where to look without naming the check (a test enforces that). The trap
+   carries a hint that points where to look without naming the check (a test enforces that),
+   every failed check links straight to its evidence — the exact certificate fields, highlighted
+   in the inspector — and a plain-language glossary sits where the jargon first bites. The trap
    ladder: valid baseline · basicConstraints CA:FALSE (the classic — signature fine, authority
    absent, cf. iOS CVE-2011-0228) · pathLenConstraint exceeded · expired intermediate under a
    fresh leaf · hostname vs SAN vs deprecated CN fallback · nameConstraints subtree violation ·
@@ -54,6 +56,11 @@ subset of RFC 5280 §6 — no policy mapping, no IP/email name constraints, no A
 4. **Certificate inspector** — every certificate in the lab: parsed fields, decoded extensions
    (where all the authority lives), full DER hex, and a live signature verdict against every
    candidate issuer key.
+5. **Bring your own chain** — paste any real PEM chain plus the anchors you choose to trust, and
+   run the same builder and validator against it, entirely in the tab (nothing is uploaded or
+   fetched). Revocation for imported chains is reported honestly as NOT EVALUATED, never as a
+   clean pass. A one-click example loads the lab's own chain as editable PEM — flip one base64
+   character and watch the signature check fail.
 
 ## When to Use It
 
@@ -104,7 +111,7 @@ failing check.
 ```bash
 npm install
 npm run dev        # serves on http://localhost:5173
-npm test           # 67 unit tests incl. 6 KATs
+npm test           # 77 unit tests incl. 6 KATs
 npm run build      # typecheck + production build
 npm run test:a11y  # axe-core WCAG 2.1 A/AA gate, both themes (build first)
 ```
@@ -125,12 +132,16 @@ persisted.
 
 ## Build & Verify
 
-- **67 Vitest tests** (`npm test`), including **6 known-answer tests** in `src/pki/kat.test.ts`:
+- **77 Vitest tests** (`npm test`), including **6 known-answer tests** in `src/pki/kat.test.ts`:
   2 SHA-256 KATs (FIPS 180-4) and 4 ECDSA P-256 verification KATs (RFC 6979 §A.2.5 vectors — two
   accept, two must-reject), all through the same WebCrypto the demo uses.
 - Behavioral tests pin the validator against **every stage of the trap ladder** (verdict, failing
   check, and the signature-chain fact independently), the naive-vs-backtracking builder outcomes,
-  hostname matching, and nameConstraints subtree semantics.
+  hostname matching, nameConstraints subtree semantics, PEM import round-trips, and invariants:
+  any failed check forces REJECT, the builder never revisits a certificate, and empty/duplicate
+  paths fail closed.
+- Extending the lab? Read [docs/MAINTAINERS.md](docs/MAINTAINERS.md) — validator check order,
+  stage-authoring rules, and why the fact/verdict split is non-negotiable.
 - **Accessibility is gated in CI**: `npm run test:a11y` scans the production build with
   axe-core (WCAG 2.1 A/AA) in **both** themes plus a 390px mobile viewport — after driving the
   live demo into its alarm states — and the GitHub Pages deploy in

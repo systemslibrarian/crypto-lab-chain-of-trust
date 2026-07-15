@@ -63,6 +63,40 @@ describe('RFC 5280 §6 validator vs every stage of the trap ladder', () => {
   });
 });
 
+describe('validator invariants', () => {
+  it('verdict is ACCEPT exactly when zero checks fail, across every stage path', async () => {
+    for (const stage of STAGES) {
+      const path = stage.intendedPathIds.map((id) => pki.byId(id));
+      const result = await validatePath(path, stageOpts(stage));
+      expect(result.verdict === 'ACCEPT', stage.id).toBe(result.failures.length === 0);
+      expect(result.failures.every((f) => !f.ok), stage.id).toBe(true);
+      // failures is exactly the failing subset of checks
+      expect(result.failures.length, stage.id).toBe(result.checks.filter((c) => !c.ok).length);
+    }
+  });
+
+  it('an empty path is rejected loudly, not validated vacuously', async () => {
+    await expect(validatePath([], { trustStore: [pki.byId('root-y')] })).rejects.toThrow(/empty/);
+  });
+
+  it('a path with a duplicated certificate fails closed', async () => {
+    const leaf = pki.byId('leaf-www');
+    const result = await validatePath([leaf, leaf, pki.byId('root-y')], {
+      trustStore: [pki.byId('root-y')],
+    });
+    expect(result.verdict).toBe('REJECT');
+  });
+
+  it('the signature-fact chip data can never disagree with the per-link checks', async () => {
+    for (const stage of STAGES) {
+      const path = stage.intendedPathIds.map((id) => pki.byId(id));
+      const result = await validatePath(path, stageOpts(stage));
+      const sigChecks = result.checks.filter((c) => c.id === 'signature');
+      expect(result.signatureChainOk, stage.id).toBe(sigChecks.every((c) => c.ok));
+    }
+  });
+});
+
 describe('validator details', () => {
   it('exactly the signature checks are marked cryptographic; all others are policy', async () => {
     const stage = STAGES[1]; // ca-false

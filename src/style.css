@@ -136,6 +136,19 @@ body {
   max-width: 70ch;
 }
 
+.glossary {
+  margin: 0.5rem 0 0.2rem;
+}
+.glossary dt {
+  font-weight: 700;
+  margin-top: 0.55rem;
+}
+.glossary dd {
+  margin: 0.1rem 0 0 0;
+  color: var(--text-dim);
+  max-width: 75ch;
+}
+
 /* ---------- buttons / selects ---------- */
 #app button {
   font: inherit;
@@ -303,6 +316,19 @@ body {
   font-size: 0.8rem;
   color: var(--text-dim);
   font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+.evidence-btn {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+}
+.kv-evidence th,
+.kv-evidence td {
+  background: var(--warn-fill);
+}
+.badge-evidence {
+  border-color: var(--warn-text);
+  color: var(--warn-text);
 }
 
 /* ---------- diamond diagram ---------- */
@@ -564,6 +590,46 @@ fieldset.trust-controls label {
   overflow: auto;
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+/* ---------- bring your own chain ---------- */
+.byo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.6rem;
+}
+@media (max-width: 640px) {
+  .byo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+#app textarea {
+  font: 0.8rem ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  color: var(--text);
+  background-color: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+#app input[type='text'] {
+  font: inherit;
+  color: var(--text);
+  background-color: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.42rem 0.7rem;
+  min-width: min(24rem, 100%);
+}
+.byo-grid label,
+#byo-host + label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
 }
 
 /* ---------- footer ---------- */

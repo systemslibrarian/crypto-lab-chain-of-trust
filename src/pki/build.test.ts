@@ -80,6 +80,20 @@ describe('path building ≠ path validation (the headline mechanism)', () => {
     expect(smart.path!.map((c) => c.id)).toEqual(['leaf-www', 'issuing-b', 'root-y']);
   });
 
+  it('terminates without looping when the bag chains to no anchor (cross-signs, empty store)', async () => {
+    const outcome = await buildAndValidate({
+      leaf: pki.byId('leaf-www'),
+      bag: [pki.byId('issuing-a'), pki.byId('issuing-b'), pki.byId('root-x'), pki.byId('root-y')],
+      validateOpts: { trustStore: [] },
+      backtrack: true,
+    });
+    expect(outcome.found).toBe(false);
+    // loop guard: no certificate may appear twice in any step's path
+    for (const step of outcome.steps) {
+      expect(new Set(step.pathIds).size).toBe(step.pathIds.length);
+    }
+  });
+
   it('the self-signed leaf builds a one-cert path that validation rejects on trust-anchor', async () => {
     const outcome = await buildAndValidate({
       leaf: pki.byId('leaf-standalone'),

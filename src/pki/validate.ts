@@ -320,22 +320,38 @@ export async function validatePath(path: LabCert[], opts: ValidateOptions): Prom
   }
 
   // 9. Revocation — a fixture-fed status lookup, deliberately not a signature.
-  const revoked = opts.revoked ?? new Set<string>();
-  const revokedHit = path.find((c) => revoked.has(c.id)) ?? null;
-  checks.push({
-    id: 'revocation',
-    label: 'Revocation status (local fixture)',
-    certId: revokedHit?.id ?? null,
-    ok: revokedHit === null,
-    cryptographic: false,
-    detail: revokedHit
-      ? `"${revokedHit.nickname}" is listed as REVOKED. Its certificate bytes are unchanged and its ` +
-        `signature still verifies — revocation is a status you must go ask about (CRL/OCSP), not anything ` +
-        `readable off the certificate. In this lab the status is a local fixture; no network fetch happens.`
-      : `No certificate in the path is revoked in the lab's fixture. (Statuses are local fixtures — this ` +
-        `lab performs no CRL/OCSP network fetch.)`,
-    rfc: 'RFC 5280 §6.1.3(a)(3)',
-  });
+  if (opts.revocationSource === 'not-evaluated') {
+    checks.push({
+      id: 'revocation',
+      label: 'Revocation status — NOT EVALUATED',
+      certId: null,
+      ok: true,
+      cryptographic: false,
+      detail:
+        `Imported chains have no status source in this lab: there is no fixture entry for them and the ` +
+        `lab performs no CRL/OCSP network fetch, so revocation was NOT checked. A verdict of ACCEPT here ` +
+        `means "valid except revocation unknown" — a production validator must consult CRL or OCSP ` +
+        `before trusting this path.`,
+      rfc: 'RFC 5280 §6.1.3(a)(3)',
+    });
+  } else {
+    const revoked = opts.revoked ?? new Set<string>();
+    const revokedHit = path.find((c) => revoked.has(c.id)) ?? null;
+    checks.push({
+      id: 'revocation',
+      label: 'Revocation status (local fixture)',
+      certId: revokedHit?.id ?? null,
+      ok: revokedHit === null,
+      cryptographic: false,
+      detail: revokedHit
+        ? `"${revokedHit.nickname}" is listed as REVOKED. Its certificate bytes are unchanged and its ` +
+          `signature still verifies — revocation is a status you must go ask about (CRL/OCSP), not anything ` +
+          `readable off the certificate. In this lab the status is a local fixture; no network fetch happens.`
+        : `No certificate in the path is revoked in the lab's fixture. (Statuses are local fixtures — this ` +
+          `lab performs no CRL/OCSP network fetch.)`,
+      rfc: 'RFC 5280 §6.1.3(a)(3)',
+    });
+  }
 
   // 10. Server identity (RFC 6125/9525) — not part of RFC 5280 §6, but part of
   // "is this certificate valid for THIS connection".

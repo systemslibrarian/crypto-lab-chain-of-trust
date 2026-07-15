@@ -64,6 +64,12 @@ export interface ValidateOptions {
    * revocation is an input to validation, not a property of the signature.
    */
   revoked?: ReadonlySet<string>;
+  /**
+   * 'fixture' (default): statuses come from the lab fixture above.
+   * 'not-evaluated': no status source exists (imported chains) — the check
+   * reports honestly that it was NOT evaluated rather than claiming a pass.
+   */
+  revocationSource?: 'fixture' | 'not-evaluated';
 }
 
 export interface ValidationResult {

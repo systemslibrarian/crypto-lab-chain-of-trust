@@ -34,8 +34,21 @@ async function prepare(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'ACCEPT this chain' }).click();
   await expect(page.locator('#puzzle .alarm')).toBeVisible();
 
+  // Evidence deep-link: jump from the failed check to the inspector rows.
+  await page.getByRole('button', { name: /open the evidence/i }).first().click();
+  await expect(page.locator('#inspector .kv-evidence').first()).toBeVisible();
+
   // Trust panel: flip a root off so a REJECT verdict renders there too.
   await page.getByLabel('Trust Root X').uncheck();
+
+  // Bring-your-own-chain: fail-closed alarm on garbage, then a real run on
+  // the lab's own exported PEM.
+  await page.locator('#byo-chain').fill('not a certificate');
+  await page.getByRole('button', { name: 'Validate my chain' }).click();
+  await expect(page.locator('#byo .alarm')).toBeVisible();
+  await page.getByRole('button', { name: /load the lab/i }).click();
+  await page.getByRole('button', { name: 'Validate my chain' }).click();
+  await expect(page.locator('#byo .check-table')).toBeVisible({ timeout: 15_000 });
 
   // Open every <details> so hidden explanatory text is scanned.
   await page.evaluate(() => {
