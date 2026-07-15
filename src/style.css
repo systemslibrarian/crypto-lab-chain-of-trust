@@ -1,0 +1,585 @@
+/* Chain of Trust — theme contract: dark default under :root, light under
+   :root[data-theme="light"]. No prefers-color-scheme. Base element rules are
+   scoped to #app so they never fight the shared top bar. */
+
+:root {
+  --accent: #15803d;
+  /* text-on-background accent (AA on dark panels) */
+  --accent-text: #57c982;
+  --bg: #0d1210;
+  --panel: #151c18;
+  --panel-2: #1b2420;
+  --border: #2c3b33;
+  --text: #e8f2ec;
+  --text-dim: #a7bcb0;
+  --ok-text: #6fdc99;
+  --ok-fill: rgba(34, 154, 84, 0.16);
+  --bad-text: #ff9c93;
+  --bad-fill: rgba(220, 76, 62, 0.16);
+  --warn-text: #ffce6b;
+  --warn-fill: rgba(214, 158, 32, 0.14);
+  --focus: #8ee6b0;
+}
+
+:root[data-theme='light'] {
+  --accent: #15803d;
+  --accent-text: #116632;
+  --bg: #f4f9f5;
+  --panel: #ffffff;
+  --panel-2: #eef4ef;
+  --border: #c4d4c9;
+  --text: #15211a;
+  --text-dim: #45584c;
+  --ok-text: #0f6b34;
+  --ok-fill: rgba(21, 128, 61, 0.1);
+  --bad-text: #ad2317;
+  --bad-fill: rgba(196, 48, 34, 0.09);
+  --warn-text: #7a5200;
+  --warn-fill: rgba(191, 143, 31, 0.13);
+  --focus: #0f6b34;
+}
+
+html {
+  background-color: #0d1210;
+  color-scheme: dark;
+}
+html[data-theme='light'] {
+  background-color: #f4f9f5;
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.55;
+}
+
+#app {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 clamp(0.9rem, 3vw, 2rem) 2.5rem;
+}
+
+#app :focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+#app a {
+  color: var(--accent-text);
+  text-decoration: underline; /* persistent — never color alone */
+}
+
+#app h2 {
+  font-size: 1.25rem;
+  margin: 0 0 0.6rem;
+}
+#app h3 {
+  font-size: 1.02rem;
+  margin: 1.1rem 0 0.4rem;
+}
+#app p {
+  margin: 0.5rem 0;
+}
+#app code {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0 0.25em;
+}
+
+/* BEGIN cl-hero standard — managed, keep in sync across fleet */
+.cl-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:clamp(1rem,4vw,3rem);flex-wrap:wrap;margin:clamp(1rem,3vw,2rem) 0 1.5rem;}
+.cl-hero-main{flex:1 1 22rem;min-width:min(100%,20rem);}
+.cl-hero-title{margin:0;font-size:clamp(1.6rem,3.8vw,2.7rem);font-weight:700;line-height:1.1;letter-spacing:.01em;}
+.cl-hero-sub{margin:.4rem 0 0;font-size:clamp(.9rem,1.6vw,1.05rem);letter-spacing:.01em;opacity:.85;}
+.cl-hero-desc{margin:.55rem 0 0;font-size:1rem;line-height:1.5;color:var(--text-dim);max-width:60ch;}
+.cl-hero-why{flex:0 1 min(40%,26rem);min-width:min(100%,15rem);border:1px solid var(--border);border-radius:10px;padding:.85rem 1.05rem;background:color-mix(in oklab,var(--accent) 6%,transparent);}
+.cl-hero-why-label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.14em;}
+.cl-hero-why-text{margin:.35rem 0 0;font-size:.95rem;line-height:1.5;}
+@media (max-width:640px){.cl-hero{flex-direction:column;}.cl-hero-why{flex-basis:auto;width:100%;}}
+/* END cl-hero standard */
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem 1.3rem;
+  margin: 1.1rem 0;
+}
+
+.scope-note {
+  margin-top: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.55rem 0.8rem;
+  background: var(--panel-2);
+}
+.scope-note summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.scope-note ul {
+  margin: 0.5rem 0 0.2rem;
+  padding-left: 1.2rem;
+}
+.scope-note li {
+  margin: 0.35rem 0;
+}
+
+#app .lede {
+  color: var(--text-dim);
+  max-width: 70ch;
+}
+
+/* ---------- buttons / selects ---------- */
+#app button {
+  font: inherit;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+}
+#app button:hover {
+  border-color: var(--accent-text);
+}
+#app button[disabled] {
+  cursor: not-allowed;
+  color: var(--text-dim);
+}
+#app button.primary {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  font-weight: 600;
+}
+#app button[aria-pressed='true'] {
+  border-color: var(--accent-text);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  font-weight: 600;
+}
+#app select {
+  font: inherit;
+  color: var(--text);
+  background-color: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.42rem 1.9rem 0.42rem 0.7rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+  margin: 0.8rem 0;
+}
+
+/* ---------- chips: fact vs verdict (never color alone) ---------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  padding: 0.28rem 0.75rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+/* Cryptographic FACT chip: deliberately monochrome. Color in this lab tracks
+   system integrity, not raw return values — "signature valid" on a rejected
+   chain must not glow green. */
+.chip-fact {
+  background: var(--panel-2);
+  color: var(--text);
+  border-color: var(--text-dim);
+}
+.chip-accept {
+  background: var(--ok-fill);
+  color: var(--ok-text);
+  border-color: var(--ok-text);
+}
+.chip-reject {
+  background: var(--bad-fill);
+  color: var(--bad-text);
+  border-color: var(--bad-text);
+}
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0.6rem 0;
+}
+
+.alarm {
+  border: 1.5px solid var(--bad-text);
+  background: var(--bad-fill);
+  border-radius: 10px;
+  padding: 0.7rem 0.95rem;
+  margin: 0.7rem 0;
+}
+.alarm .alarm-title {
+  color: var(--bad-text);
+  font-weight: 700;
+}
+.callout-ok {
+  border: 1px solid var(--ok-text);
+  background: var(--ok-fill);
+  border-radius: 10px;
+  padding: 0.7rem 0.95rem;
+  margin: 0.7rem 0;
+}
+.callout-plain {
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  border-radius: 10px;
+  padding: 0.7rem 0.95rem;
+  margin: 0.7rem 0;
+}
+
+/* ---------- check table ---------- */
+.sr-caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.check-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.6rem 0;
+  font-size: 0.93rem;
+}
+.check-table th,
+.check-table td {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.check-table .status-pass {
+  color: var(--ok-text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.check-table .status-fail {
+  color: var(--bad-text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border-radius: 5px;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.badge-crypto {
+  border-color: var(--accent-text);
+  color: var(--accent-text);
+}
+.check-detail {
+  color: var(--text-dim);
+}
+.check-detail summary {
+  cursor: pointer;
+  color: var(--text);
+}
+.rfc-ref {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+
+/* ---------- diamond diagram ---------- */
+.diamond-wrap {
+  position: relative;
+  margin: 1rem 0;
+}
+.diamond-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.diamond-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr;
+  gap: 1.2rem 2.5rem;
+  align-items: center;
+}
+.node {
+  position: relative;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 0.5rem 0.7rem;
+  font-size: 0.88rem;
+}
+.node .node-name {
+  font-weight: 700;
+}
+.node .node-sub {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+.node-active {
+  border-color: var(--accent-text);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.node-rejected {
+  border-color: var(--bad-text);
+}
+.node-accepted {
+  border-color: var(--ok-text);
+}
+.edge {
+  stroke: var(--text-dim);
+  stroke-width: 1.5;
+  fill: none;
+}
+.edge-active {
+  stroke: var(--accent-text);
+  stroke-width: 2.5;
+}
+.edge-rejected {
+  stroke: var(--bad-text);
+  stroke-width: 2.5;
+  stroke-dasharray: 6 4;
+}
+.edge-accepted {
+  stroke: var(--ok-text);
+  stroke-width: 3;
+}
+
+.step-log {
+  margin: 0.6rem 0;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  max-height: 18rem;
+  overflow: auto;
+  font-size: 0.9rem;
+}
+.step-log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.step-log li {
+  padding: 0.28rem 0.3rem;
+  border-bottom: 1px dashed var(--border);
+}
+.step-log li:last-child {
+  border-bottom: none;
+}
+.step-log .step-tag {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-right: 0.45rem;
+}
+.step-tag-neutral { color: var(--text-dim); }
+.step-tag-ok { color: var(--ok-text); }
+.step-tag-bad { color: var(--bad-text); }
+.step-tag-warn { color: var(--warn-text); }
+
+/* ---------- puzzle ---------- */
+.stage-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0;
+  margin: 0.7rem 0;
+}
+.stage-list button {
+  font-size: 0.85rem;
+  padding: 0.32rem 0.6rem;
+}
+.stage-list .stage-solved {
+  border-color: var(--ok-text);
+}
+.puzzle-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 640px) {
+  .puzzle-cols {
+    grid-template-columns: 1fr;
+  }
+  .diamond-grid {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+  .diamond-svg {
+    display: none;
+  }
+}
+.cert-list {
+  list-style: none;
+  margin: 0.4rem 0;
+  padding: 0;
+}
+.cert-list li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  padding: 0.4rem 0.6rem;
+  margin: 0.35rem 0;
+  font-size: 0.9rem;
+}
+.cert-list .cert-name {
+  font-weight: 600;
+  margin-right: auto;
+}
+.cert-list .link-fact {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  width: 100%;
+}
+.context-list {
+  margin: 0.4rem 0;
+  padding-left: 1.2rem;
+  font-size: 0.93rem;
+}
+.score-line {
+  font-weight: 600;
+}
+
+/* ---------- trust store panel ---------- */
+.trust-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.6rem;
+}
+@media (max-width: 640px) {
+  .trust-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.trust-path {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  background: var(--panel-2);
+}
+.trust-path .path-line {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  margin: 0.2rem 0 0.5rem;
+}
+fieldset.trust-controls {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem 0.7rem;
+  margin: 0.6rem 0;
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+fieldset.trust-controls label {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+/* ---------- inspector ---------- */
+.inspector-cols {
+  display: grid;
+  grid-template-columns: 15rem 1fr;
+  gap: 1rem;
+}
+@media (max-width: 640px) {
+  .inspector-cols {
+    grid-template-columns: 1fr;
+  }
+}
+.inspect-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.inspect-nav h3 {
+  margin: 0.5rem 0 0.15rem;
+}
+.inspect-nav button {
+  text-align: left;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.55rem;
+}
+.kv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.kv-table th,
+.kv-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.3rem 0.55rem;
+  border-bottom: 1px solid var(--border);
+}
+.kv-table th {
+  white-space: nowrap;
+  color: var(--text-dim);
+  font-weight: 600;
+  width: 11rem;
+}
+.der-dump {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  max-height: 14rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ---------- footer ---------- */
+.scripture-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+  padding: 1.1rem clamp(0.9rem, 3vw, 2rem) 1.6rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Motion discipline: every animation is tied to a user-triggered run.
+   Honor reduced-motion globally. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
