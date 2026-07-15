@@ -39,7 +39,8 @@ subset of RFC 5280 §6 — no policy mapping, no IP/email name constraints, no A
 2. **You are the validator** — puzzle mode, ten stages, learner-triggered one at a time. Each
    stage hands you a leaf, a bag of intermediates, and a trust store; you assemble the path and
    rule ACCEPT or REJECT (naming the failing check). Grading runs the real RFC 5280 §6
-   implementation on the exact path you built and tells you which check you missed. The trap
+   implementation on the exact path you built and tells you which check you missed. Every stage
+   carries a hint that points where to look without naming the check (a test enforces that). The trap
    ladder: valid baseline · basicConstraints CA:FALSE (the classic — signature fine, authority
    absent, cf. iOS CVE-2011-0228) · pathLenConstraint exceeded · expired intermediate under a
    fresh leaf · hostname vs SAN vs deprecated CN fallback · nameConstraints subtree violation ·
@@ -103,7 +104,7 @@ failing check.
 ```bash
 npm install
 npm run dev        # serves on http://localhost:5173
-npm test           # 66 unit tests incl. 6 KATs
+npm test           # 67 unit tests incl. 6 KATs
 npm run build      # typecheck + production build
 npm run test:a11y  # axe-core WCAG 2.1 A/AA gate, both themes (build first)
 ```
@@ -124,15 +125,16 @@ persisted.
 
 ## Build & Verify
 
-- **66 Vitest tests** (`npm test`), including **6 known-answer tests** in `src/pki/kat.test.ts`:
+- **67 Vitest tests** (`npm test`), including **6 known-answer tests** in `src/pki/kat.test.ts`:
   2 SHA-256 KATs (FIPS 180-4) and 4 ECDSA P-256 verification KATs (RFC 6979 §A.2.5 vectors — two
   accept, two must-reject), all through the same WebCrypto the demo uses.
 - Behavioral tests pin the validator against **every stage of the trap ladder** (verdict, failing
   check, and the signature-chain fact independently), the naive-vs-backtracking builder outcomes,
   hostname matching, and nameConstraints subtree semantics.
 - **Accessibility is gated in CI**: `npm run test:a11y` scans the production build with
-  axe-core (WCAG 2.1 A/AA) in **both** themes — after driving the live demo into its alarm
-  states — and the GitHub Pages deploy in `.github/workflows/deploy.yml` is blocked if it fails.
+  axe-core (WCAG 2.1 A/AA) in **both** themes plus a 390px mobile viewport — after driving the
+  live demo into its alarm states — and the GitHub Pages deploy in
+  `.github/workflows/deploy.yml` is blocked if it fails.
 
 ## Performance
 

@@ -306,9 +306,13 @@ body {
 }
 
 /* ---------- diamond diagram ---------- */
+.diamond-scroll {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
 .diamond-wrap {
   position: relative;
-  margin: 1rem 0;
+  min-width: 37rem; /* the diamond keeps its shape; narrow screens scroll it */
 }
 .diamond-svg {
   position: absolute;
@@ -427,11 +431,10 @@ body {
     grid-template-columns: 1fr;
   }
   .diamond-grid {
-    grid-template-columns: 1fr;
-    gap: 0.6rem;
+    gap: 1rem 1.4rem;
   }
-  .diamond-svg {
-    display: none;
+  .node {
+    font-size: 0.8rem;
   }
 }
 .cert-list {

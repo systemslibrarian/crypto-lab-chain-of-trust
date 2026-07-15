@@ -17,9 +17,10 @@ export function renderPuzzle(root: HTMLElement, pki: LabPki): void {
   root.append(
     el('p', { class: 'lede' }, [
       'Each stage hands you a leaf certificate, a bag of candidates, and a trust store. Build the ' +
-        'chain (leaf upward), then rule. Signature facts are shown as you build — cryptography ' +
-        'answers instantly. Everything else on the checklist is your call. The stage is graded by ' +
-        'the real validator, and it will tell you exactly which check you missed.',
+        'FULL chain — leaf upward, ending at a trust-store root — then rule. Signature facts are ' +
+        'shown as you build — cryptography answers instantly. Everything else on the checklist is ' +
+        'your call. The stage is graded by the real validator, and it will tell you exactly which ' +
+        'check you missed. Stuck? Every stage has a hint, and the inspector below shows every byte.',
     ]),
   );
 
@@ -168,6 +169,10 @@ export function renderPuzzle(root: HTMLElement, pki: LabPki): void {
     const gradeBox = el('div', { role: 'status', 'aria-live': 'polite' });
     stageBox.append(
       el('h3', {}, ['Your ruling']),
+      el('details', { class: 'scope-note' }, [
+        el('summary', { text: 'Need a nudge? (hint — does not name the check)' }),
+        el('p', {}, [stage.hint]),
+      ]),
       el('div', { class: 'controls' }, [acceptBtn, rejectBtn, culpritSelect]),
       gradeBox,
     );

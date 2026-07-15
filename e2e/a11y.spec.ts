@@ -68,3 +68,12 @@ test('no WCAG A/AA violations — light theme', async ({ page }) => {
   await prepare(page);
   await scan(page);
 });
+
+test.describe('mobile viewport', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+  test('no WCAG A/AA violations — dark theme, 390px (diagram scroller active)', async ({ page }) => {
+    await page.goto('.');
+    await prepare(page);
+    await scan(page);
+  });
+});

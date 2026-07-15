@@ -44,6 +44,18 @@ describe('RFC 5280 §6 validator vs every stage of the trap ladder', () => {
     });
   }
 
+  it('every stage carries learner-facing brief, hint, and lesson text', () => {
+    for (const s of STAGES) {
+      expect(s.brief.length, s.id).toBeGreaterThan(40);
+      expect(s.hint.length, s.id).toBeGreaterThan(40);
+      expect(s.lesson.length, s.id).toBeGreaterThan(40);
+      // the hint must nudge, not name the failing check outright
+      for (const culprit of s.culpritChecks) {
+        expect(s.hint.toLowerCase()).not.toContain(culprit);
+      }
+    }
+  });
+
   it('every REJECT stage in the ladder still has a fully valid signature chain (the thesis of the lab)', () => {
     const rejects = STAGES.filter((s) => s.expectedVerdict === 'REJECT');
     expect(rejects.length).toBe(9);

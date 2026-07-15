@@ -45,7 +45,14 @@ export function renderMechanism(root: HTMLElement, pki: LabPki): void {
   svg.setAttribute('aria-hidden', 'true');
   const wrap = el('div', { class: 'diamond-wrap' });
   wrap.append(svg, grid);
-  root.append(wrap);
+  // On narrow screens the diagram keeps its diamond shape and scrolls
+  // horizontally instead of collapsing (the shape IS the lesson).
+  const scroller = el(
+    'div',
+    { class: 'diamond-scroll', tabindex: '0', role: 'region', 'aria-label': 'Certificate hierarchy diagram' },
+    [wrap],
+  );
+  root.append(scroller);
 
   const EDGES: [string, string, string][] = [
     ['leaf-www', 'issuing-a', 'edge-la'],

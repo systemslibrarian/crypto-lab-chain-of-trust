@@ -26,6 +26,8 @@ export interface Stage {
   expectedSignatureOk: boolean;
   /** The intended path (leaf first) tests pin the validator against. */
   intendedPathIds: string[];
+  /** A nudge that points where to look without naming the failing check. */
+  hint: string;
   lesson: string;
 }
 
@@ -47,6 +49,9 @@ export const STAGES: Stage[] = [
     culpritChecks: [],
     expectedSignatureOk: true,
     intendedPathIds: ['leaf-www', 'issuing-b', 'root-y'],
+    hint:
+      'Build leaf → intermediate → root, then walk the checklist top to bottom. When every line ' +
+      'passes, accepting is as much a ruling as rejecting.',
     lesson:
       'The baseline: signatures verify AND every constraint holds. Keep this stage in mind — every ' +
       'later stage has the same valid signatures and a different verdict.',
@@ -68,6 +73,9 @@ export const STAGES: Stage[] = [
     culpritChecks: ['basic-constraints', 'key-usage'],
     expectedSignatureOk: true,
     intendedPathIds: ['leaf-rogue', 'int-serverops', 'issuing-b', 'root-y'],
+    hint:
+      'The signatures all check out — so look at what the certificate that signed the leaf is ' +
+      'ALLOWED to do. Open "Server Ops" in the inspector and read its extensions.',
     lesson:
       'A valid signature proves the Server Ops key signed the leaf. It cannot prove Server Ops was ' +
       'ALLOWED to. CA:FALSE (and the missing keyCertSign bit) is where authority lives — verifiers that ' +
@@ -91,6 +99,9 @@ export const STAGES: Stage[] = [
     culpritChecks: ['path-len'],
     expectedSignatureOk: true,
     intendedPathIds: ['leaf-deep', 'int-deep', 'int-constrained', 'root-y'],
+    hint:
+      'Count the CA certificates between the root and the leaf, then compare against what ' +
+      'Constrained CA’s basicConstraints extension budgets for.',
     lesson:
       'pathLenConstraint is a delegation budget: "you may certify, but you may not mint further ' +
       'certifiers below this depth." Constrained CA’s signature on Deep CA is real ECDSA; the budget it ' +
@@ -113,6 +124,9 @@ export const STAGES: Stage[] = [
     culpritChecks: ['validity'],
     expectedSignatureOk: true,
     intendedPathIds: ['leaf-archive', 'int-expired', 'root-y'],
+    hint:
+      'The leaf’s dates are fine. The rule is about EVERY certificate in the path — read the ' +
+      'notBefore/notAfter of each one, not just the bottom.',
     lesson:
       'Expiry does not rot the mathematics — the expired CA’s signature verifies today exactly as it did ' +
       'last year. What lapsed is the issuer’s CLAIM. Every certificate in the path must be in date, not ' +
@@ -136,6 +150,9 @@ export const STAGES: Stage[] = [
     culpritChecks: ['hostname'],
     expectedSignatureOk: true,
     intendedPathIds: ['leaf-shop', 'issuing-b', 'root-y'],
+    hint:
+      'Two fields on the leaf claim a name, and they disagree. Which one does a modern verifier ' +
+      'read — and which host are you actually connecting to?',
     lesson:
       'Server identity lives in the SAN extension. The CN is a free-text relic: RFC 6125 only ever ' +
       'allowed it when no SAN dNSName exists, and RFC 9525 and every modern browser ignore it entirely. ' +
@@ -158,6 +175,9 @@ export const STAGES: Stage[] = [
     culpritChecks: ['name-constraints'],
     expectedSignatureOk: true,
     intendedPathIds: ['leaf-www', 'issuing-a', 'root-x'],
+    hint:
+      'This exact leaf passed stage 1. What changed is the intermediate above it — inspect ' +
+      'cross-sign A and look for an extension that fences in which names it may vouch for.',
     lesson:
       'The identical leaf was ACCEPTED in stage 1 through Root Y. Through Root X’s cross-sign the same ' +
       'bytes are outside the permitted subtree. Which chain you build decides which constraints apply — ' +
@@ -180,6 +200,9 @@ export const STAGES: Stage[] = [
     culpritChecks: ['eku'],
     expectedSignatureOk: true,
     intendedPathIds: ['leaf-device', 'issuing-b', 'root-y'],
+    hint:
+      'Chain and hostname are both fine. Compare what you are validating FOR (see the connection ' +
+      'context above) with the purposes listed on the leaf itself.',
     lesson:
       'EKU scopes what a key was certified FOR. A clientAuth certificate serving TLS is a key doing a job ' +
       'its issuer never vouched for — the signature, which only proves who signed, has no opinion.',
@@ -201,6 +224,9 @@ export const STAGES: Stage[] = [
     culpritChecks: ['key-usage'],
     expectedSignatureOk: true,
     intendedPathIds: ['leaf-iot', 'int-nosign', 'root-y'],
+    hint:
+      'basicConstraints says CA:TRUE this time — but two separate extensions must both agree ' +
+      'before a certificate may sign certificates. Read NoCertSign CA’s keyUsage bits.',
     lesson:
       'Two independent extensions must BOTH say yes: basicConstraints (is this a CA?) and keyUsage (may ' +
       'this key sign certificates?). RFC 5280 §6.1.4 checks them separately — a verifier that treats ' +
@@ -223,6 +249,9 @@ export const STAGES: Stage[] = [
     culpritChecks: ['revocation'],
     expectedSignatureOk: true,
     intendedPathIds: ['leaf-legacy', 'int-retired', 'root-y'],
+    hint:
+      'Nothing on the certificates is wrong — stop reading them. One input to validation comes ' +
+      'from OUTSIDE the chain; re-read the connection context above.',
     lesson:
       'Revocation is the purest case of "validation is not signatures": nothing in the certificate ' +
       'changed. The status is an INPUT you must fetch (CRL or OCSP; here, a local fixture — this lab does ' +
@@ -246,6 +275,9 @@ export const STAGES: Stage[] = [
     culpritChecks: ['trust-anchor'],
     expectedSignatureOk: true,
     intendedPathIds: ['leaf-standalone'],
+    hint:
+      'The signature genuinely verifies — under whose key, though? Ask what makes Root X and ' +
+      'Root Y different from this certificate, and where that difference lives.',
     lesson:
       'Self-signing is real cryptography and empty authority: anyone can sign their own claim with their ' +
       'own key. What separates this certificate from Root X is one thing only — Root X is in your trust ' +
