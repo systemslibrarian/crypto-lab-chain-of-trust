@@ -21,11 +21,6 @@
     />
   </head>
   <body>
-<!-- BEGIN crypto-lab shared header — managed; edit shared-header.html + re-run reapply-header.py
-     Identical on every lab. Self-contained styles. Accents use each demo's own
-     --accent CSS variable (teal #35d6bb fallback). The ONLY per-repo value is the
-     repo name (crypto-lab-chain-of-trust) in the GitHub link.
-     Source of truth: github.com/systemslibrarian/crypto-lab/shared-header.html -->
 <style>
   .cl-topbar{
     /* The bar is always dark (#0b1512) regardless of page theme, so header
@@ -137,7 +132,6 @@
     else dedupeBanner();
   })();
 </script>
-<!-- END crypto-lab shared header -->
 
     <div id="app">
       <header class="cl-hero">
@@ -160,6 +154,8 @@
           </p>
         </aside>
       </header>
+
+      <main>
 
       <section class="card intro" aria-labelledby="intro-h">
         <h2 id="intro-h">What is this?</h2>
@@ -246,6 +242,8 @@
           <li><strong>No certificate issuance / ACME flow</strong> — the lab starts after issuance has happened.</li>
         </ul>
       </section>
+
+      </main>
     </div>
 
     <footer class="scripture-footer">
