@@ -225,6 +225,11 @@ body {
   color: var(--bad-text);
   border-color: var(--bad-text);
 }
+.chip-unknown {
+  background: var(--warn-fill);
+  color: var(--warn-text);
+  border-color: var(--warn-text);
+}
 .chip-row {
   display: flex;
   flex-wrap: wrap;

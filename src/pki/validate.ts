@@ -326,11 +326,12 @@ export async function validatePath(path: LabCert[], opts: ValidateOptions): Prom
       label: 'Revocation status — NOT EVALUATED',
       certId: null,
       ok: true,
+      evaluated: false,
       cryptographic: false,
       detail:
         `Imported chains have no status source in this lab: there is no fixture entry for them and the ` +
-        `lab performs no CRL/OCSP network fetch, so revocation was NOT checked. A verdict of ACCEPT here ` +
-        `means "valid except revocation unknown" — a production validator must consult CRL or OCSP ` +
+        `lab performs no CRL/OCSP network fetch, so revocation was NOT checked. The top-line verdict is ` +
+        `therefore UNKNOWN — a production validator must consult CRL or OCSP ` +
         `before trusting this path.`,
       rfc: 'RFC 5280 §6.1.3(a)(3)',
     });
@@ -369,10 +370,11 @@ export async function validatePath(path: LabCert[], opts: ValidateOptions): Prom
   }
 
   const failures = checks.filter((c) => !c.ok);
+  const unevaluated = checks.some((c) => c.evaluated === false);
   return {
     checks,
     signatureChainOk,
-    verdict: failures.length === 0 ? 'ACCEPT' : 'REJECT',
+    verdict: failures.length > 0 ? 'REJECT' : unevaluated ? 'UNKNOWN' : 'ACCEPT',
     failures,
   };
 }

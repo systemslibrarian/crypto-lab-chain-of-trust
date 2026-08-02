@@ -47,7 +47,7 @@ describe('parsePemCertificates (bring-your-own-chain input)', () => {
       requiredEku: 'serverAuth',
       revocationSource: 'not-evaluated',
     });
-    expect(result.verdict).toBe('ACCEPT');
+    expect(result.verdict).toBe('UNKNOWN');
     expect(result.signatureChainOk).toBe(true);
   });
 
@@ -63,6 +63,21 @@ describe('parsePemCertificates (bring-your-own-chain input)', () => {
     });
     const rev = result.checks.find((c) => c.id === 'revocation');
     expect(rev?.label).toContain('NOT EVALUATED');
+    expect(rev?.evaluated).toBe(false);
     expect(rev?.detail).toContain('no CRL/OCSP network fetch');
+    expect(result.verdict).toBe('UNKNOWN');
+  });
+
+  it('a real validation failure takes precedence over unknown revocation status', async () => {
+    const reparsed = parsePemCertificates(
+      ['leaf-www', 'issuing-b', 'root-y'].map((id) => pki.byId(id).cert.toString('pem')).join('\n'),
+      'user',
+    );
+    const result = await validatePath(reparsed, {
+      trustStore: [],
+      revocationSource: 'not-evaluated',
+    });
+    expect(result.verdict).toBe('REJECT');
+    expect(result.failures.some((check) => check.id === 'trust-anchor')).toBe(true);
   });
 });

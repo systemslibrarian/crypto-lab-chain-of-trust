@@ -43,11 +43,16 @@ export function signatureFactChip(result: ValidationResult): HTMLElement {
 }
 
 export function verdictChip(result: ValidationResult): HTMLElement {
-  const accept = result.verdict === 'ACCEPT';
+  const presentation =
+    result.verdict === 'ACCEPT'
+      ? { className: 'chip-accept', text: 'Verdict: ACCEPT ✓' }
+      : result.verdict === 'REJECT'
+        ? { className: 'chip-reject', text: 'Verdict: REJECT ✗' }
+        : { className: 'chip-unknown', text: 'Verdict: UNKNOWN — revocation not evaluated' };
   return el(
     'span',
-    { class: `chip ${accept ? 'chip-accept' : 'chip-reject'}` },
-    [accept ? 'Verdict: ACCEPT ✓' : 'Verdict: REJECT ✗'],
+    { class: `chip ${presentation.className}` },
+    [presentation.text],
   );
 }
 
@@ -77,8 +82,12 @@ export function checkTable(result: ValidationResult, caption: string, inspect?: 
 }
 
 function checkRow(c: CheckResult, inspect?: InspectFn): HTMLElement {
+  const evaluated = c.evaluated !== false;
   const detailCell = el('td', { class: 'check-detail' }, [
-    el('details', {}, [el('summary', { text: c.ok ? 'why it passes' : 'why it fails' }), c.detail]),
+    el('details', {}, [
+      el('summary', { text: !evaluated ? 'why it is unknown' : c.ok ? 'why it passes' : 'why it fails' }),
+      c.detail,
+    ]),
   ]);
   if (!c.ok && c.certId && inspect) {
     const certId = c.certId;
@@ -96,7 +105,11 @@ function checkRow(c: CheckResult, inspect?: InspectFn): HTMLElement {
     );
   }
   return el('tr', {}, [
-    el('td', { class: c.ok ? 'status-pass' : 'status-fail' }, [c.ok ? '✓ pass' : '✗ FAIL']),
+    el(
+      'td',
+      { class: !evaluated ? 'status-unknown' : c.ok ? 'status-pass' : 'status-fail' },
+      [!evaluated ? '— UNKNOWN' : c.ok ? '✓ pass' : '✗ FAIL'],
+    ),
     el('td', {}, [c.label, el('div', { class: 'rfc-ref', text: c.rfc })]),
     el('td', {}, [
       el('span', {

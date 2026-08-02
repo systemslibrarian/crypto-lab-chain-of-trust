@@ -174,6 +174,8 @@ export function renderMechanism(root: HTMLElement, pki: LabPki): void {
     const tagClass =
       step.action === 'path-accepted'
         ? 'step-tag-ok'
+        : step.action === 'path-indeterminate'
+          ? 'step-tag-warn'
         : step.action === 'path-rejected' || step.action === 'give-up' || step.action === 'link-bad'
           ? 'step-tag-bad'
           : step.action === 'backtrack' || step.action === 'dead-end'
@@ -211,6 +213,8 @@ export function renderMechanism(root: HTMLElement, pki: LabPki): void {
           if (k) setEdge(k, 'accepted');
         }
         for (const id of ids) setNode(id, 'accepted');
+        break;
+      case 'path-indeterminate':
         break;
       case 'backtrack':
         if (step.certId) setNode(step.certId, '');

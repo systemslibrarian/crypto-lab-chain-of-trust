@@ -132,7 +132,7 @@ export function renderByo(root: HTMLElement, pki: LabPki): void {
       chipRow(result),
       el('p', { class: 'lede' }, [
         'Revocation was NOT evaluated: imported chains have no status source here and this lab performs ' +
-          'no CRL/OCSP fetch. Treat ACCEPT as "valid except revocation unknown".',
+          'no CRL/OCSP fetch. An otherwise-valid chain therefore receives UNKNOWN, not ACCEPT.',
       ]),
       checkTable(result, 'Validator checklist for the imported chain'),
     );

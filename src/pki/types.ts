@@ -42,6 +42,8 @@ export interface CheckResult {
   /** Lab id of the certificate the result is attributed to (null = whole path). */
   certId: string | null;
   ok: boolean;
+  /** False when this check could not be performed, rather than passing or failing. */
+  evaluated?: boolean;
   /** True only for signature checks — the one thing ECDSA can answer. */
   cryptographic: boolean;
   detail: string;
@@ -80,8 +82,8 @@ export interface ValidationResult {
    * the key of the certificate above it (and the anchor under its own key)?
    */
   signatureChainOk: boolean;
-  /** The RFC 5280 verdict: ACCEPT only if every check passed. */
-  verdict: 'ACCEPT' | 'REJECT';
+  /** ACCEPT only when every check passed; UNKNOWN when a required check was not evaluated. */
+  verdict: 'ACCEPT' | 'REJECT' | 'UNKNOWN';
   failures: CheckResult[];
 }
 
@@ -96,6 +98,7 @@ export interface BuildStep {
     | 'validate'
     | 'path-rejected'
     | 'path-accepted'
+    | 'path-indeterminate'
     | 'backtrack'
     | 'dead-end'
     | 'give-up';

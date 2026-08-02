@@ -86,6 +86,15 @@ export async function buildAndValidate(params: BuildParams): Promise<BuildOutcom
         });
         return { found: true, path: candidatePath, result, steps, pathsTried };
       }
+      if (result.verdict === 'UNKNOWN') {
+        steps.push({
+          action: 'path-indeterminate',
+          certId: null,
+          pathIds: candidatePath.map((p) => p.id),
+          note: `Every evaluated check passes, but at least one required check was not evaluated. Verdict: UNKNOWN.`,
+        });
+        return { found: true, path: candidatePath, result, steps, pathsTried };
+      }
       const why = result.failures[0];
       steps.push({
         action: 'path-rejected',

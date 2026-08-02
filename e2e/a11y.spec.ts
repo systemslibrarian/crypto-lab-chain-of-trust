@@ -49,6 +49,10 @@ async function prepare(page: Page): Promise<void> {
   await page.getByRole('button', { name: /load the lab/i }).click();
   await page.getByRole('button', { name: 'Validate my chain' }).click();
   await expect(page.locator('#byo .check-table')).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('#byo .chip-unknown')).toHaveText(
+    'Verdict: UNKNOWN — revocation not evaluated',
+  );
+  await expect(page.locator('#byo .status-unknown')).toHaveText('— UNKNOWN');
 
   // Open every <details> so hidden explanatory text is scanned.
   await page.evaluate(() => {

@@ -24,6 +24,8 @@ two separate indicators; `Signature: valid ✓ / Verdict: REJECT ✗` is the who
 Security model honesty: revocation statuses are **local fixtures** (no CRL/OCSP network fetch —
 deliberately, since the point is that revocation is an *input* to validation). This is a teaching
 subset of RFC 5280 §6 — no policy mapping, no IP/email name constraints, no ASN.1 hardening.
+Imported chains therefore receive `UNKNOWN`, rather than `ACCEPT`, when every evaluated check
+passes but revocation was not evaluated.
 **Not production crypto — a teaching demo.**
 
 ## Exhibits

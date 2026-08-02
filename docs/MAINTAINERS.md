@@ -6,7 +6,8 @@ exists to protect that thesis. If a change conflicts with an invariant here, the
 ## Non-negotiable invariants
 
 1. **Fact/verdict separation.** The cryptographic result (`signatureChainOk`, the monochrome
-   `chip-fact`) and the security verdict (`verdict`, the colored `chip-accept`/`chip-reject`)
+   `chip-fact`) and the security verdict (`verdict`, the colored `chip-accept`/`chip-reject`/
+   `chip-unknown`)
    are computed independently and rendered as separate indicators. Never merge them, never derive
    one from the other in the UI, never color the signature chip green.
 2. **Color tracks system integrity, never raw return values.** A learner accepting a chain the
@@ -24,8 +25,9 @@ exists to protect that thesis. If a change conflicts with an invariant here, the
 
 ## Validator check order (src/pki/validate.ts)
 
-Checks run in this order and are ALL reported, independently — the verdict is
-`ACCEPT` iff every check passes:
+Checks run in this order and are ALL reported, independently. The verdict is `REJECT` if a check
+fails, `UNKNOWN` if no check fails but a required check was not evaluated, and `ACCEPT` only if
+every check was evaluated and passed:
 
 1. `trust-anchor` — DER byte-equality against the trust store (configuration, not crypto)
 2. `signature` — one result per link, plus a self-signature check only when the top cert claims
