@@ -10,6 +10,7 @@
   --panel: #151c18;
   --panel-2: #1b2420;
   --border: #2c3b33;
+  --control-border: #61776a;
   --text: #e8f2ec;
   --text-dim: #a7bcb0;
   --ok-text: #6fdc99;
@@ -28,6 +29,7 @@
   --panel: #ffffff;
   --panel-2: #eef4ef;
   --border: #c4d4c9;
+  --control-border: #718177;
   --text: #15211a;
   --text-dim: #45584c;
   --ok-text: #0f6b34;
@@ -180,7 +182,7 @@ body {
   font: inherit;
   color: var(--text);
   background-color: var(--panel-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--control-border);
   border-radius: 8px;
   padding: 0.42rem 1.9rem 0.42rem 0.7rem;
   appearance: none;
