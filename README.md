@@ -142,6 +142,14 @@ persisted.
   hostname matching, nameConstraints subtree semantics, PEM import round-trips, and invariants:
   any failed check forces REJECT, the builder never revisits a certificate, and empty/duplicate
   paths fail closed.
+- **Rendered claims are gated too** (`e2e/claims.spec.ts`): the production build is driven in
+  Chromium and every verdict on screen is re-derived. All ten stages are played to a correct
+  ruling with exactly the intended checks failing and the signature fact still reading
+  `valid ✓`; the alarm's "check you missed" must list precisely the `✗ FAIL` rows beneath it;
+  "Candidate paths validated: N" must equal the number of validator runs in the step log; the
+  trust-store matrix must change all four verdicts while the signature chips stay byte-identical;
+  the DER dump must hold exactly as many bytes as its own header claims; and flipping one base64
+  character of an imported chain must fail the signature check, not a policy check.
 - Extending the lab? Read [docs/MAINTAINERS.md](docs/MAINTAINERS.md) — validator check order,
   stage-authoring rules, and why the fact/verdict split is non-negotiable.
 - **Accessibility is gated in CI**: `npm run test:a11y` scans the production build with
