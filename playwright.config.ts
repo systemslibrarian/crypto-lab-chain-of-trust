@@ -7,7 +7,7 @@ export default defineConfig({
   reporter: 'list',
   timeout: 60_000,
   use: {
-    baseURL: 'http://localhost:4173/crypto-lab-chain-of-trust/',
+    baseURL: 'http://localhost:4615/crypto-lab-chain-of-trust/',
     colorScheme: 'dark',
     contextOptions: { reducedMotion: 'reduce' }, // builder runs render instantly under the gate
   },
@@ -16,8 +16,8 @@ export default defineConfig({
     // Without the build, a source change that fails to compile leaves the last
     // good bundle in place and the suite passes green against code that no
     // longer builds — which silently invalidates mutation checks.
-    command: 'npm run build && npm run preview -- --port 4173 --strictPort',
-    url: 'http://localhost:4173/crypto-lab-chain-of-trust/',
+    command: 'npm run build && npm run preview -- --port 4615 --strictPort',
+    url: 'http://localhost:4615/crypto-lab-chain-of-trust/',
     reuseExistingServer: !process.env.CI,
   },
 });
