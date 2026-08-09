@@ -60,8 +60,40 @@ export function chipRow(result: ValidationResult): HTMLElement {
   return el('div', { class: 'chip-row' }, [signatureFactChip(result), verdictChip(result)]);
 }
 
+/**
+ * Wrap a node in a horizontally scrolling region that is a keyboard focus
+ * target exactly while it is actually scrolling.
+ *
+ * A scrolling box holding nothing focusable is unreachable by keyboard (WCAG
+ * 2.1.1), and the usual fix — a static `tabindex="0"` — leaves a tab stop that
+ * does nothing on every viewport wide enough not to scroll. Since whether the
+ * box scrolls is a function of the viewport, so is whether it should be a focus
+ * target; a ResizeObserver is what keeps the two in step across a rotation or a
+ * window drag. Both the box and its content are observed, because the content
+ * can change size (a check table grows a row) without the box doing so.
+ */
+export function scrollRegion(label: string, child: HTMLElement): HTMLElement {
+  const box = el('div', { class: 'scroll-region', role: 'region', 'aria-label': label }, [child]);
+  const sync = (): void => {
+    if (box.scrollWidth > box.clientWidth + 1) box.setAttribute('tabindex', '0');
+    else box.removeAttribute('tabindex');
+  };
+  const ro = new ResizeObserver(sync);
+  ro.observe(box);
+  ro.observe(child);
+  return box;
+}
+
 /** Full RFC 5280 check table: every check reported independently. Failed
- * checks with an attributed certificate get a jump-to-evidence button. */
+ * checks with an attributed certificate get a jump-to-evidence button.
+ *
+ * Returned inside a `scrollRegion`: four columns of verdict, check name, kind
+ * and a paragraph of detail have a min-content width of ~385px and cannot
+ * reflow below it — forcing them to would break "nameConstraints" across two
+ * lines — so on a phone the table scrolls sideways inside its own box rather
+ * than scrolling the document (WCAG 1.4.10). The caption doubles as the
+ * region's accessible name so a keyboard user landing there is told which
+ * checklist they are in. */
 export function checkTable(result: ValidationResult, caption: string, inspect?: InspectFn): HTMLElement {
   const table = el('table', { class: 'check-table' });
   table.append(el('caption', { class: 'sr-caption', text: caption }));
@@ -78,7 +110,7 @@ export function checkTable(result: ValidationResult, caption: string, inspect?: 
     tbody.append(checkRow(c, inspect));
   }
   table.append(thead, tbody);
-  return table;
+  return scrollRegion(caption, table);
 }
 
 function checkRow(c: CheckResult, inspect?: InspectFn): HTMLElement {

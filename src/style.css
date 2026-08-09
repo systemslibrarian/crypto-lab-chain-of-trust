@@ -64,6 +64,22 @@ body {
   padding: 0 clamp(0.9rem, 3vw, 2rem) 2.5rem;
 }
 
+/* Border-box reset. This stylesheet had none, and `.cl-hero-why` pays for it:
+   the <=640px block gives that aside `width: 100%` while it also carries
+   `padding: .85rem 1.05rem` and a 1px border, so under content-box its border
+   box came out 35.6px wider than the hero — 386.8px inside 351.2px. Because
+   `.cl-hero` is a column flex container, the oversized item set the flex line's
+   cross size and dragged `.cl-hero-main` out with it, so the whole hero
+   overflowed and every phone-width visit scrolled sideways (WCAG 1.4.10),
+   in every state, before a single control was touched.
+   Scoped to #app's subtree: nothing outside it declares a percentage width
+   alongside padding. */
+#app *,
+#app *::before,
+#app *::after {
+  box-sizing: border-box;
+}
+
 #app :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
@@ -184,6 +200,12 @@ body {
   background-color: var(--panel-2);
   border: 1px solid var(--control-border);
   border-radius: 8px;
+  /* A <select> is as wide as its widest option, and the puzzle's culprit list
+     runs to "Validity dates (something expired / not yet valid)" — 426px, wider
+     than a phone viewport, so the control alone scrolled the document sideways
+     (WCAG 1.4.10). Capping it lets the chosen option clip; the full text is
+     still read out and still shown in the open dropdown. */
+  max-width: 100%;
   padding: 0.42rem 1.9rem 0.42rem 0.7rem;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
@@ -266,6 +288,14 @@ body {
 }
 
 /* ---------- check table ---------- */
+/* `common.ts` puts every check table in one of these. It is a focus target only
+   while it is genuinely scrolling — see `scrollRegion` — so there is no tab stop
+   on a viewport wide enough to show all four columns. `#app :focus-visible`
+   already paints the ring. */
+.scroll-region {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .sr-caption {
   position: absolute;
   width: 1px;
@@ -454,14 +484,17 @@ body {
 .stage-list .stage-solved {
   border-color: var(--ok-text);
 }
+/* minmax(0, …) for the same reason as `.inspector-cols`: these columns hold
+   certificate nicknames and check tables, both of which carry a min-content
+   width larger than a phone. */
 .puzzle-cols {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1rem;
 }
 @media (max-width: 640px) {
   .puzzle-cols {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .diamond-grid {
     gap: 1rem 1.4rem;
@@ -508,13 +541,13 @@ body {
 /* ---------- trust store panel ---------- */
 .trust-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1rem;
   margin-top: 0.6rem;
 }
 @media (max-width: 640px) {
   .trust-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 .trust-path {
@@ -544,14 +577,25 @@ fieldset.trust-controls label {
 }
 
 /* ---------- inspector ---------- */
+/* `minmax(0, 1fr)`, not `1fr`. A bare `1fr` is `minmax(auto, 1fr)`, and that
+   `auto` floor is the item's MIN-CONTENT width — which for the detail column is
+   set by `.kv-table`: `white-space: nowrap` headers like "Signature verdict
+   (live ECDSA)" plus unbreakable hex values (serial numbers, subject and
+   authority key identifiers). At 380px that floor resolved to 576.8px inside a
+   309.2px container, and since `.inspect-nav` is the other item in the same
+   single column below 640px, it stretched to 576.8px too and was what the
+   reflow check named — 232px of horizontal document scroll (WCAG 1.4.10) from
+   a table two panels away. Zeroing the floor is necessary but not sufficient:
+   a table cannot render narrower than its own min-content either, so the th
+   wrapping and the td breaking below are the other half of the same fix. */
 .inspector-cols {
   display: grid;
-  grid-template-columns: 15rem 1fr;
+  grid-template-columns: 15rem minmax(0, 1fr);
   gap: 1rem;
 }
 @media (max-width: 640px) {
   .inspector-cols {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 .inspect-nav {
@@ -585,6 +629,22 @@ fieldset.trust-controls label {
   font-weight: 600;
   width: 11rem;
 }
+/* Field VALUES include tokens with no break opportunity at all — the serial
+   number and both key identifiers are bare hex. `anywhere`, not `break-word`:
+   `break-word` lets a long word overflow before it breaks and, unlike
+   `anywhere`, does not shrink the element's min-content size, which is
+   precisely the measurement the grid track above is floored by. */
+.kv-table td {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  /* A one-line field name is a desktop luxury; on a phone it is 200px of
+     min-content the column cannot give back. */
+  .kv-table th {
+    white-space: normal;
+    width: auto;
+  }
+}
 .der-dump {
   font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   font-size: 0.78rem;
@@ -602,13 +662,13 @@ fieldset.trust-controls label {
 /* ---------- bring your own chain ---------- */
 .byo-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1rem;
   margin-top: 0.6rem;
 }
 @media (max-width: 640px) {
   .byo-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 #app textarea {

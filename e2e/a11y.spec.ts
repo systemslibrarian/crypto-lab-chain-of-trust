@@ -1,96 +1,40 @@
-import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
-
-const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
+import { test } from '@playwright/test';
+import { boot, driveAllStates, reportCollected, NARROW } from './gate';
 
 /**
- * Reveal collapsed content and drive the live demo so every dynamic region —
- * the builder step log, the puzzle grade box (including the ALARM state), the
- * trust-store verdicts, the inspector — is in the DOM when axe scans.
+ * WCAG A/AA regression gate.
+ *
+ * The lab is driven the way a visitor drives it: the locked pre-PKI state
+ * measured before the panels unhide, the naive builder run to its alarm and the
+ * backtracking builder run to its fix, all four puzzle grading branches reached
+ * in an order that puts each next to the others, a stage graded on a truncated
+ * path, the evidence deep-link followed into the inspector, the trust store
+ * emptied and refilled, a root and a nameConstrained intermediate inspected,
+ * and the bring-your-own-chain panel driven through garbage, a valid import and
+ * a missing anchor. Every resulting state is scanned in both themes at desktop
+ * and phone width — four configurations, because a gate that scans one scans
+ * one half, and which half depends on the lab's defaults.
+ *
+ * See `gate.ts` for why nothing is injected into the page, why reduced motion
+ * is asked for rather than forced (and why a style tag could never have
+ * exercised this lab's reduced-motion block), why the defaults are asserted
+ * rather than assumed, why every step is scanned rather than only the last, and
+ * why `violations` is not the whole oracle.
  */
-async function prepare(page: Page): Promise<void> {
-  await page.addStyleTag({
-    content: `*,*::before,*::after{animation:none!important;transition:none!important}`,
+
+for (const theme of ['dark', 'light'] as const) {
+  test(`no WCAG A/AA violations in ${theme} theme`, async ({ page }) => {
+    test.setTimeout(1_800_000);
+    await boot(page, theme);
+    await driveAllStates(page, theme);
+    reportCollected();
   });
 
-  // Wait for the PKI to generate and the panels to unhide.
-  await expect(page.locator('#loading')).toContainText('ready', { timeout: 30_000 });
-  await expect(page.locator('#mechanism')).toBeVisible();
-
-  // Run both path builders (naive first; each run disables the buttons until done).
-  await page.getByRole('button', { name: /run the naive builder/i }).click();
-  await expect(page.locator('#mechanism .alarm')).toBeVisible({ timeout: 30_000 });
-  await page.getByRole('button', { name: /run the backtracking builder/i }).click();
-  await expect(page.locator('#mechanism .callout-ok')).toBeVisible({ timeout: 30_000 });
-
-  // Puzzle: go to stage 2 (CA:FALSE), build the full chain, then wrongly
-  // ACCEPT it — that renders the alarm state, which must also pass contrast.
-  await page.getByRole('button', { name: /2\. The classic/ }).click();
-  for (;;) {
-    const add = page.getByRole('button', { name: 'Add to path' }).and(page.locator(':enabled'));
-    if ((await add.count()) === 0) break;
-    await add.first().click();
-  }
-  await page.getByRole('button', { name: 'ACCEPT this chain' }).click();
-  await expect(page.locator('#puzzle .alarm')).toBeVisible();
-
-  // Evidence deep-link: jump from the failed check to the inspector rows.
-  await page.getByRole('button', { name: /open the evidence/i }).first().click();
-  await expect(page.locator('#inspector .kv-evidence').first()).toBeVisible();
-
-  // Trust panel: flip a root off so a REJECT verdict renders there too.
-  await page.getByLabel('Trust Root X').uncheck();
-
-  // Bring-your-own-chain: fail-closed alarm on garbage, then a real run on
-  // the lab's own exported PEM.
-  await page.locator('#byo-chain').fill('not a certificate');
-  await page.getByRole('button', { name: 'Validate my chain' }).click();
-  await expect(page.locator('#byo .alarm')).toBeVisible();
-  await page.getByRole('button', { name: /load the lab/i }).click();
-  await page.getByRole('button', { name: 'Validate my chain' }).click();
-  await expect(page.locator('#byo .check-table')).toBeVisible({ timeout: 15_000 });
-  await expect(page.locator('#byo .chip-unknown')).toHaveText(
-    'Verdict: UNKNOWN — revocation not evaluated',
-  );
-  await expect(page.locator('#byo .status-unknown')).toHaveText('— UNKNOWN');
-
-  // Open every <details> so hidden explanatory text is scanned.
-  await page.evaluate(() => {
-    document.querySelectorAll('details').forEach((d) => (d.open = true));
+  test(`no WCAG A/AA violations in ${theme} theme at 380px`, async ({ page }) => {
+    test.setTimeout(1_800_000);
+    await page.setViewportSize(NARROW);
+    await boot(page, theme);
+    await driveAllStates(page, `${theme} @380px`);
+    reportCollected();
   });
-  await page.waitForTimeout(400);
 }
-
-async function scan(page: Page): Promise<void> {
-  const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
-  expect(
-    violations.map((v) => ({
-      id: v.id,
-      impact: v.impact,
-      nodes: v.nodes.map((n) => n.target.join(' ')).slice(0, 5),
-    })),
-  ).toEqual([]);
-}
-
-test('no WCAG A/AA violations — dark theme', async ({ page }) => {
-  await page.goto('.');
-  await prepare(page);
-  await scan(page);
-});
-
-test('no WCAG A/AA violations — light theme', async ({ page }) => {
-  await page.goto('.');
-  await page.locator('#cl-theme-toggle').click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await prepare(page);
-  await scan(page);
-});
-
-test.describe('mobile viewport', () => {
-  test.use({ viewport: { width: 390, height: 844 } });
-  test('no WCAG A/AA violations — dark theme, 390px (diagram scroller active)', async ({ page }) => {
-    await page.goto('.');
-    await prepare(page);
-    await scan(page);
-  });
-});
