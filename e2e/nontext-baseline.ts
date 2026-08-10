@@ -1,0 +1,26 @@
+/**
+ * Known WCAG 1.4.11 / generated-content findings in this lab, captured through
+ * the gate's own path so the baseline and the check cannot disagree.
+ *
+ * THIS FILE IS A TO-DO LIST, NOT A SET OF EXEMPTIONS. The gate ratchets on it:
+ *   - a finding NOT listed here fails the run, so a regression cannot land;
+ *   - a listed finding whose ratio gets WORSE fails, so the list cannot rot;
+ *   - a listed finding that no longer appears ALSO fails, so a fixed entry must
+ *     be deleted and the file can only shrink toward empty.
+ *
+ * `unverified: true` marks an absolutely-positioned pseudo-element, whose ratio
+ * is NOT trustworthy — hand-measure before acting on it.
+ */
+export const NONTEXT_BASELINE: Record<
+  string,
+  { ratio: number; required: number; unverified: boolean }
+> = {
+  "control-boundary|a.cl-btn": { ratio: 1.53, required: 3.0, unverified: false },
+  "control-boundary|button": { ratio: 1.35, required: 3.0, unverified: false },
+  "control-boundary|button#cl-theme-toggle.cl-btn.cl-icon": { ratio: 1.53, required: 3.0, unverified: false },
+  "control-boundary|button.evidence-btn": { ratio: 1.45, required: 3.0, unverified: false },
+  "control-boundary|button.stage-solved": { ratio: 1.47, required: 3.0, unverified: false },
+  "control-boundary|input#byo-host": { ratio: 1.47, required: 3.0, unverified: false },
+  "control-boundary|textarea#byo-chain": { ratio: 1.47, required: 3.0, unverified: false },
+  "control-boundary|textarea#byo-trust": { ratio: 1.47, required: 3.0, unverified: false }
+};
