@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { boot, driveAllStates, reportCollected, NARROW } from './gate';
+import { boot, driveAllStates, expectBaselineNotStale, reportCollected, NARROW } from './gate';
 
 /**
  * WCAG A/AA regression gate.
@@ -38,3 +38,20 @@ for (const theme of ['dark', 'light'] as const) {
     reportCollected();
   });
 }
+
+/**
+ * The baseline's third rule: a listed finding that no longer appears fails
+ * until its entry is deleted, so a fixed defect cannot linger as a permanent
+ * exemption. `expectBaselineNotStale` was exported and never called, so that
+ * rule had never run and the file could only grow.
+ *
+ * It runs LAST and exactly once, not at the end of each configuration.
+ * `nonTextSeen` is module state and this config leaves `fullyParallel` unset,
+ * so the four configurations share one worker and one module instance and
+ * accumulate into a single set — declared last, this test sees the union of all
+ * four drives. Calling it per configuration would assert the whole baseline
+ * against a partial drive.
+ */
+test('the non-text baseline carries no stale entries', () => {
+  expectBaselineNotStale();
+});
