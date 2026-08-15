@@ -21,10 +21,9 @@ function contrast(first: Rgb, second: Rgb): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-for (const theme of ['dark', 'light'] as const) {
+for (const theme of ['dark'] as const) {
   test(`${theme} selects retain 3:1 boundary contrast`, async ({ page }) => {
     await page.goto('.');
-    if (theme === 'light') await page.locator('#cl-theme-toggle').click();
     await expect(page.locator('#loading')).toContainText('ready', { timeout: 30_000 });
 
     const selects = page.locator('#app select');
