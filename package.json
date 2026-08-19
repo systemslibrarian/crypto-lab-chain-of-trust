@@ -13,12 +13,12 @@
     "test:a11y": "playwright test"
   },
   "dependencies": {
-    "@peculiar/asn1-schema": "^2.4.0",
-    "@peculiar/asn1-x509": "^2.4.0",
+    "@peculiar/asn1-schema": "^2.9.0",
+    "@peculiar/asn1-x509": "^2.9.0",
     "@peculiar/x509": "^1.14.0"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.12.1",
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.1.2",
     "typescript": "^5.8.3",
