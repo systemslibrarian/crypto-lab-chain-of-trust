@@ -13,17 +13,17 @@
     "test:a11y": "playwright test"
   },
   "dependencies": {
-    "@peculiar/asn1-schema": "^2.9.4",
-    "@peculiar/asn1-x509": "^2.9.4",
+    "@peculiar/asn1-schema": "^2.9.5",
+    "@peculiar/asn1-x509": "^2.9.5",
     "@peculiar/x509": "^1.14.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
-    "@types/node": "^26.5.1",
+    "@types/node": "^26.6.2",
     "typescript": "^5.8.3",
     "vite": "^8.3.0",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.1"
   },
   "allowScripts": {
     "esbuild@0.25.12": true
