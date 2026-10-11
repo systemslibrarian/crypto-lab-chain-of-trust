@@ -1,4 +1,4 @@
-import * as x509 from '@peculiar/x509';
+import * as x509 from './x509';
 import { makeNameConstraintsExtension } from './nameconstraints';
 import type { LabCert, LabPki } from './types';
 

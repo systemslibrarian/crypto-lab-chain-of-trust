@@ -5,7 +5,7 @@ import {
   GeneralSubtrees,
   NameConstraints,
 } from '@peculiar/asn1-x509';
-import * as x509 from '@peculiar/x509';
+import * as x509 from './x509';
 
 export const NAME_CONSTRAINTS_OID = '2.5.29.30';
 

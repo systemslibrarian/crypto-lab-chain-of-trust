@@ -1,4 +1,4 @@
-import * as x509 from '@peculiar/x509';
+import * as x509 from './x509';
 import { OID_CLIENT_AUTH, OID_SERVER_AUTH } from './certgen';
 import { equalBytes } from './hex';
 import { matchHostname } from './hostname';

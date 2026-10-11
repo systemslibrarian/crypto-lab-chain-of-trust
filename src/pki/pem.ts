@@ -1,4 +1,4 @@
-import * as x509 from '@peculiar/x509';
+import * as x509 from './x509';
 import type { LabCert } from './types';
 
 const PEM_BLOCK = /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g;

@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import * as x509 from '@peculiar/x509';
+import * as x509 from './x509';
 import { generateLabPki } from './certgen';
 import { parseNameConstraints } from './nameconstraints';
 import { sanDnsNames, subjectCn } from './validate';
