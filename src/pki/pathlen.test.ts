@@ -1,4 +1,4 @@
-import * as x509 from '@peculiar/x509';
+import * as x509 from './x509';
 import { describe, expect, it } from 'vitest';
 import { validatePath } from './validate';
 import type { LabCert } from './types';

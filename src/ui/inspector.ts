@@ -1,4 +1,4 @@
-import * as x509 from '@peculiar/x509';
+import * as x509 from '../pki/x509';
 import { OID_CLIENT_AUTH, OID_SERVER_AUTH } from '../pki/certgen';
 import { bytesToHex } from '../pki/hex';
 import { parseNameConstraints } from '../pki/nameconstraints';
