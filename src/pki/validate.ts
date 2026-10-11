@@ -212,7 +212,9 @@ export async function validatePath(path: LabCert[], opts: ValidateOptions): Prom
   }
   for (let i = 1; i < chain.length - 1 && !plFail; i++) {
     const c = chain[i]; // an intermediate: it will issue chain[i+1]
-    if (maxPathLen <= 0) {
+    // RFC 5280 §6.1.4(l): self-issued rollover CAs neither test nor
+    // consume the depth budget. Their own constraint still applies below.
+    if (!isSelfIssued(c.cert) && maxPathLen <= 0) {
       const setter = chain
         .slice(0, i)
         .reverse()
