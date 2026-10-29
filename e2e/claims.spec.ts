@@ -389,7 +389,7 @@ test('every failed check links to the certificate field that decided it', async 
   await page.locator('#puzzle select').selectOption('basic-constraints');
   await page.getByRole('button', { name: 'REJECT', exact: true }).click();
 
-  await page.getByRole('button', { name: /Open the evidence for "basicConstraints/ }).click();
+  await page.getByRole('button', { name: /Show evidence in inspector: the evidence for "basicConstraints/ }).click();
   // The evidence is the actual field, on the actual certificate that failed.
   await expect(certHeading(page)).toHaveText(
     'Server Ops (CA:FALSE end-entity)',
@@ -404,7 +404,7 @@ test('every failed check links to the certificate field that decided it', async 
   await buildFullPath(page);
   await page.locator('#puzzle select').selectOption('name-constraints');
   await page.getByRole('button', { name: 'REJECT', exact: true }).click();
-  await page.getByRole('button', { name: /Open the evidence for "nameConstraints/ }).click();
+  await page.getByRole('button', { name: /Show evidence in inspector: the evidence for "nameConstraints/ }).click();
   await expect(page.locator('#inspector .kv-evidence')).toContainText('subjectAltName');
   await expect(page.locator('#inspector .kv-evidence')).toContainText('www.example.test');
 });

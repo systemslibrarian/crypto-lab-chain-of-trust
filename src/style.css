@@ -719,3 +719,6 @@ fieldset.trust-controls label {
     transition: none !important;
   }
 }
+
+/* The evidence button's arrow, drawn here rather than written as DOM text. */
+.evidence-btn::after { content: "\00A0\2193"; }

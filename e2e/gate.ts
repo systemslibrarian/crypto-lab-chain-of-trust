@@ -702,7 +702,7 @@ export async function driveAllStates(page: Page, theme: string): Promise<void> {
 
   // The evidence deep-link is the only route to `.kv-evidence` / the amber
   // `.badge-evidence` in the inspector.
-  await page.getByRole('button', { name: /Open the evidence for/i }).first().click();
+  await page.getByRole('button', { name: /Show evidence in inspector/i }).first().click();
   await expect(page.locator('#inspector .kv-evidence').first()).toBeVisible();
   await expect(page.locator('#inspector .badge-evidence').first()).toBeVisible();
   await scanAt('inspector opened on the evidence rows');

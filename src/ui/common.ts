@@ -129,10 +129,15 @@ function checkRow(c: CheckResult, inspect?: InspectFn): HTMLElement {
         {
           type: 'button',
           class: 'evidence-btn',
-          'aria-label': `Open the evidence for "${c.label}" in the certificate inspector`,
+          // The name opens with the words on the button, and the arrow is
+          // drawn from CSS. axe 4.14 compares the accessible name against
+          // everything a SIGHTED user sees (label-content-name-mismatch, WCAG
+          // 2.5.3 Label in Name), so neither the phrase nor the glyph could be
+          // left out of it.
+          'aria-label': `Show evidence in inspector: the evidence for "${c.label}" in the certificate inspector`,
           onclick: () => inspect(certId, c.id),
         },
-        ['Show evidence in inspector ↓'],
+        ['Show evidence in inspector'],
       ),
     );
   }
