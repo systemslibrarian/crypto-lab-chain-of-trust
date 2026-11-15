@@ -3,9 +3,10 @@ import { bytesToHex, hexToBytes } from './hex';
 
 /**
  * Known-answer tests for the two primitives everything in this lab rests on:
- * SHA-256 (FIPS 180-4) and ECDSA P-256 signature verification (FIPS 186-4
- * curve; vectors from RFC 6979 §A.2.5, which are standard P-256/SHA-256
- * signatures and thus valid verification KATs regardless of how k was made).
+ * SHA-256 (FIPS 180-4) and ECDSA P-256 signature verification (FIPS 186-5
+ * §6.4.2; curve P-256 per SP 800-186 §3.2.1.3; vectors from RFC 6979 §A.2.5,
+ * which are standard P-256/SHA-256 signatures and thus valid verification KATs
+ * regardless of how k was made).
  * All operations run through the same WebCrypto used by the demo.
  */
 
@@ -61,7 +62,7 @@ function p1363(rHex: string, sHex: string): Uint8Array<ArrayBuffer> {
   return sig;
 }
 
-describe('ECDSA P-256 verification KATs (RFC 6979 §A.2.5 / FIPS 186-4)', () => {
+describe('ECDSA P-256 verification KATs (RFC 6979 §A.2.5 / FIPS 186-5 §6.4.2)', () => {
   for (const v of VECTORS) {
     it(`${v.name} — signature verifies`, async () => {
       const key = await importP256(UX, UY);

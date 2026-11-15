@@ -9,7 +9,7 @@ An interactive, browser-only demo of **X.509 certification path building and pat
 (RFC 5280 §6, with RFC 6125/RFC 9525 server identity). On load it generates a fresh PKI in your
 browser — two roots, a **cross-signed issuing CA** (one key, two certificates), and a branch of
 deliberately defective intermediates and leaves — 19 certificates of real DER, each carrying a real
-**ECDSA P-256** (FIPS 186-4) signature made through WebCrypto via
+**ECDSA P-256** (FIPS 186-5 §6; curve per SP 800-186 §3.2.1.3) signature made through WebCrypto via
 [`@peculiar/x509`](https://github.com/PeculiarVentures/x509). The RFC 5280 checks
 (basicConstraints, pathLenConstraint, keyUsage, nameConstraints, EKU, validity, trust anchoring),
 the hostname matcher, and both path builders are hand-rolled, inspectable TypeScript in
@@ -27,6 +27,11 @@ subset of RFC 5280 §6 — no policy mapping, no IP/email name constraints, no A
 Imported chains therefore receive `UNKNOWN`, rather than `ACCEPT`, when every evaluated check
 passes but revocation was not evaluated.
 **Not production crypto — a teaching demo.**
+
+**Standards reviewed 15 November 2026:** ECDSA is cited to
+[FIPS 186-5](https://csrc.nist.gov/pubs/fips/186-5/final) (February 2023, §6), which superseded
+FIPS 186-4 — [withdrawn 3 February 2024](https://csrc.nist.gov/pubs/fips/186-4/final); the P-256
+domain parameters now live in [SP 800-186 §3.2.1.3](https://csrc.nist.gov/pubs/sp/800/186/final).
 
 ## Exhibits
 
