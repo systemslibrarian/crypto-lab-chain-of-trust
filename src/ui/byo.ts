@@ -73,7 +73,18 @@ export function renderByo(root: HTMLElement, pki: LabPki): void {
     results,
   );
 
+  let revision = 0;
+  function inputsChanged(): void {
+    revision++;
+    results.replaceChildren(el('p', { class: 'lede' }, ['Inputs changed. Validate this chain to see its current checks.']));
+  }
+  for (const field of [chainInput, trustInput, hostInput]) {
+    field.addEventListener('input', inputsChanged);
+  }
+  ekuSelect.addEventListener('change', inputsChanged);
+
   demoBtn.addEventListener('click', () => {
+    revision++;
     chainInput.value =
       pki.byId('leaf-www').cert.toString('pem') + '\n' + pki.byId('issuing-b').cert.toString('pem');
     trustInput.value = pki.byId('root-y').cert.toString('pem');
@@ -90,6 +101,7 @@ export function renderByo(root: HTMLElement, pki: LabPki): void {
   validateBtn.addEventListener('click', () => void run());
 
   async function run(): Promise<void> {
+    const runRevision = ++revision;
     results.replaceChildren();
     let chain, anchors;
     try {
@@ -119,7 +131,9 @@ export function renderByo(root: HTMLElement, pki: LabPki): void {
       backtrack: true,
     });
 
+    if (runRevision !== revision) return;
     const result = outcome.found ? outcome.result! : await validatePath(chain, opts);
+    if (runRevision !== revision) return;
     const pathLine = (outcome.found ? outcome.path! : chain).map((c) => c.nickname).join(' → ');
 
     results.append(

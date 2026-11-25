@@ -587,3 +587,20 @@ test('an imported chain is judged for the host and purpose you name, not the one
   await expect(byo.locator('.chip-unknown')).toBeVisible();
   expect(await failedChecks(byo)).toEqual([]);
 });
+
+
+test('editing any chain input retires the previous verification', async ({ page }) => {
+  await boot(page);
+  const panel = page.locator('#byo');
+  const example = panel.getByRole('button', { name: /load the lab.s own chain/i });
+  const validate = panel.getByRole('button', { name: /validate my chain/i });
+  for (const [id, value] of [['byo-host', 'other.example.test'], ['byo-eku', 'clientAuth'], ['byo-trust', ''], ['byo-chain', '']]) {
+    await example.click();
+    await validate.click();
+    await expect(panel.locator('.check-table')).toBeVisible();
+    if (id === 'byo-eku') await panel.locator('#' + id).selectOption(value);
+    else await panel.locator('#' + id).fill(value);
+    await expect(panel.locator('.check-table')).toHaveCount(0);
+    await expect(panel.getByRole('status')).toContainText('Inputs changed');
+  }
+});
